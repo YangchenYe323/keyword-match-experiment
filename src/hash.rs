@@ -3,10 +3,11 @@
 //! javascript keywords uniquely identifies them and uses it to produce an efficient
 //! hash function.
 
-pub fn select(key: &str) -> u32 {
-    let bytes = key.as_bytes();
-    let len = key.len();
-    // assert len >= 2;
+/// SAFETY:
+/// key.len() >= 2
+#[inline]
+pub unsafe fn select(bytes: &[u8]) -> u32 {
+    let len = bytes.len();
     fn read_16_bits(buf: &[u8]) -> u32 {
         (buf[0] as u32) | (buf[1] as u32) << 8
     }
@@ -17,6 +18,7 @@ pub fn select(key: &str) -> u32 {
     hi << 16 | lo
 }
 
+#[inline]
 pub fn mix(selection: u32, seed: u64) -> u32 {
     /// A very fast hash function but generates a lot of collisions.
     /// We will try at build time different seed until we find one without
@@ -27,6 +29,7 @@ pub fn mix(selection: u32, seed: u64) -> u32 {
     res as u32
 }
 
+#[inline]
 fn multiply_u64_get_top_64(a: u64, b: u64) -> u64 {
     ((a as u128 * b as u128) >> 64) as u64
 }

@@ -31,7 +31,8 @@ impl KeywordHashTable {
         self.gen += 1;
         self.seed += 1;
         for &key in keys {
-            let selection = crate::hash::select(key);
+            let slice = key.as_bytes();
+            let selection = unsafe { crate::hash::select(slice) };
             let hash = crate::hash::mix(selection, self.seed);
             let idx = hash as usize % self.entries.len();
             let old_entry = self.entries[idx];

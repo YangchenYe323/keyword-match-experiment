@@ -16,3 +16,6 @@ criterion = "0.4"
 [[bench]]
 name = "bench"
 harness = false
+
+[profile.release]
+debug = true

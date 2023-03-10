@@ -1,5 +1,38 @@
-use crate::keyword_generated::KEYWORD_HASH_TABLE;
+use std::collections::HashSet;
 
+use lazy_static::lazy_static;
+
+use crate::{
+    keyword_generated::{PerfectKeywordHasherBuilder, KEYWORD_HASH_TABLE},
+    keyword_list, MAX_JS_KEYWORD_LENGTH, MIN_JS_KEYWORD_LENGTH,
+};
+
+lazy_static! {
+    pub static ref KEYWORD_RUST_HASH_TABLE_CUSTOM_HASH: HashSet<&'static [u8], PerfectKeywordHasherBuilder> = {
+        let mut set = HashSet::with_hasher(PerfectKeywordHasherBuilder);
+        for key in keyword_list::KEYWORDS.iter().copied() {
+            set.insert(key.as_bytes());
+        }
+        set
+    };
+    pub static ref KEYWORD_RUST_HASH_TABLE: HashSet<&'static str> =
+        keyword_list::KEYWORDS.iter().copied().collect();
+}
+
+#[inline]
+pub fn match_keyword_rust_custom_hash(s: &str) -> bool {
+    if s.len() < MIN_JS_KEYWORD_LENGTH || s.len() > MAX_JS_KEYWORD_LENGTH {
+        return false;
+    }
+    KEYWORD_RUST_HASH_TABLE_CUSTOM_HASH.contains(s.as_bytes())
+}
+
+#[inline]
+pub fn match_keyword_rust_hash(s: &str) -> bool {
+    KEYWORD_RUST_HASH_TABLE.contains(s)
+}
+
+#[inline]
 pub fn match_keyword_baseline(s: &str) -> bool {
     match s {
         "as" => true,
@@ -99,21 +132,19 @@ pub fn match_keyword_baseline(s: &str) -> bool {
     }
 }
 
-pub fn match_keyword(s: &str) -> bool {
+#[inline]
+pub fn match_keyword_perfect_hash(s: &str) -> bool {
     KEYWORD_HASH_TABLE.is_keyword(s)
 }
 
 #[cfg(test)]
 #[test]
-fn baseline_test() {
-    for key in crate::keyword_list::KEYWORDS {
-        let key = key.as_bytes();
-        let klen = key.len();
-        let mut key_padded = key.to_vec();
-        key_padded.resize(16, 0);
-        let slice = &key_padded[..klen];
-        let key = unsafe { std::str::from_utf8_unchecked(slice) };
-        assert!(match_keyword(key));
-        assert!(match_keyword_baseline(key));
+fn test_hash_correctness() {
+    for key in crate::utils::read_keys_from_file("mixed.txt") {
+        let key = unsafe { std::str::from_utf8_unchecked(&key) };
+        let expected = match_keyword_baseline(key);
+        assert_eq!(expected, match_keyword_perfect_hash(key));
+        assert_eq!(expected, match_keyword_rust_hash(key));
+        assert_eq!(expected, match_keyword_rust_custom_hash(key));
     }
 }

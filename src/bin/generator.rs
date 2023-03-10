@@ -3,14 +3,11 @@ use std::{
     path::PathBuf,
 };
 
-use keyword_match_experiment::keyword_generator::*;
+use keyword_match_experiment::generate_keyword::*;
 
 #[allow(dead_code)]
 #[derive(Debug)]
-pub struct KeywordTableEntry {
-    key_start: usize,
-    len: usize,
-}
+pub struct KeywordTableEntry(u32, u32);
 
 fn generate_keyword_table_entries(
     hash_table: KeywordHashTable,
@@ -21,15 +18,9 @@ fn generate_keyword_table_entries(
         .map(|entry| match entry {
             Entry::Keyword(key) => {
                 let key_start = string_table.find_word_start(key).unwrap();
-                KeywordTableEntry {
-                    key_start,
-                    len: key.len(),
-                }
+                KeywordTableEntry(key_start as u32, key.len() as u32)
             }
-            Entry::None => KeywordTableEntry {
-                key_start: 0,
-                len: 0,
-            },
+            Entry::None => KeywordTableEntry(0, 0),
         })
         .collect()
 }
@@ -65,10 +56,7 @@ fn main() {
     write!(
         &mut w,
         "
-      pub struct KeywordTableEntry {{
-        key_start: usize,
-        len: usize,
-      }}
+      pub struct KeywordTableEntry(u32, u32);
 
       pub struct KeywordTable {{
         entries: [KeywordTableEntry; HASH_TABLE_SIZE],
@@ -83,16 +71,15 @@ fn main() {
             return false;
           }}
 
-          let selection = hash::select(candidate);
+          let selection = unsafe {{ 
+            hash::select(candidate)
+          }};
+
           let hash_code = hash::mix(selection, HASH_TABLE_SEED);
           let idx = hash_code as usize % HASH_TABLE_SIZE;
-          let KeywordTableEntry {{
-            key_start, len
-          }} = self.entries[idx];
-          
-          if len != candidate.len() {{
-            return false
-          }}
+          let KeywordTableEntry(key_start, len) = self.entries[idx];
+          let key_start = key_start as usize;
+          let len = len as usize;
           
           let keyword = &self.bytes[key_start..key_start + len];
           slice == keyword

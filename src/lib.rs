@@ -1,15 +1,16 @@
-#![feature(portable_simd)]
+#![feature(portable_simd, hasher_prefixfree_extras)]
 
 mod hash;
 mod keyword_generated;
-pub mod keyword_generator;
+pub mod generate_keyword;
 mod keyword_list;
 mod keyword_match;
+pub mod utils;
 
 use std::simd::{Simd, SimdPartialEq, ToBitMask};
 
 pub use keyword_list::{MAX_JS_KEYWORD_LENGTH, MIN_JS_KEYWORD_LENGTH};
-pub use keyword_match::{match_keyword, match_keyword_baseline};
+pub use keyword_match::{match_keyword_perfect_hash, match_keyword_baseline, match_keyword_rust_hash, match_keyword_rust_custom_hash};
 
 pub const ELEMENTS: usize = 16;
 
