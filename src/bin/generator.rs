@@ -95,7 +95,7 @@ fn main() {
           }}
           
           let keyword = &self.bytes[key_start..key_start + len];
-          crate::simd_slice_match(slice, keyword)
+          slice == keyword
         }}
       }}
 

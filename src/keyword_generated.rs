@@ -29,12 +29,8 @@ impl KeywordTable {
         let idx = hash_code as usize % HASH_TABLE_SIZE;
         let KeywordTableEntry { key_start, len } = self.entries[idx];
 
-        if len != candidate.len() {
-            return false;
-        }
-
         let keyword = &self.bytes[key_start..key_start + len];
-        crate::simd_slice_match(slice, keyword)
+        slice == keyword
     }
 }
 
