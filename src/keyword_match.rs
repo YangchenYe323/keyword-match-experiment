@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use rustc_hash::FxHashSet;
 
 use lazy_static::lazy_static;
 
@@ -17,6 +18,9 @@ lazy_static! {
     };
     pub static ref KEYWORD_RUST_HASH_TABLE: HashSet<&'static str> =
         keyword_list::KEYWORDS.iter().copied().collect();
+
+    pub static ref KEYWORD_RUST_HASH_TABLE_FX: FxHashSet<&'static str> =
+        keyword_list::KEYWORDS.iter().copied().collect();
 }
 
 #[inline]
@@ -30,6 +34,11 @@ pub fn match_keyword_rust_custom_hash(s: &str) -> bool {
 #[inline]
 pub fn match_keyword_rust_hash(s: &str) -> bool {
     KEYWORD_RUST_HASH_TABLE.contains(s)
+}
+
+#[inline]
+pub fn match_keyword_rust_hash_fx(s: &str) -> bool {
+    KEYWORD_RUST_HASH_TABLE_FX.contains(s)
 }
 
 #[inline]
@@ -145,6 +154,7 @@ fn test_hash_correctness() {
         let expected = match_keyword_baseline(key);
         assert_eq!(expected, match_keyword_perfect_hash(key));
         assert_eq!(expected, match_keyword_rust_hash(key));
+        assert_eq!(expected, match_keyword_rust_hash_fx(key));
         assert_eq!(expected, match_keyword_rust_custom_hash(key));
     }
 }

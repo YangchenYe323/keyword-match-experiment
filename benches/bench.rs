@@ -2,7 +2,7 @@
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use keyword_match_experiment::{
-    match_keyword_perfect_hash, match_keyword_baseline, match_keyword_rust_custom_hash, match_keyword_rust_hash,
+    match_keyword_perfect_hash, match_keyword_baseline, match_keyword_rust_custom_hash, match_keyword_rust_hash, match_keyword_rust_hash_fx,
     simd_str_match, str_match,
     utils::{generate_keywords, read_keys_from_file},
 };
@@ -46,6 +46,16 @@ fn bench_keyword_match(c: &mut Criterion) {
             b.iter(|| {
                 for c in &candidates {
                     black_box(match_keyword_rust_hash(c));
+                }
+            });
+        },
+    );
+    group.bench_function(
+        BenchmarkId::new("Rust FxHashMap(rustc-hasher)", &param),
+        |b| {
+            b.iter(|| {
+                for c in &candidates {
+                    black_box(match_keyword_rust_hash_fx(c));
                 }
             });
         },

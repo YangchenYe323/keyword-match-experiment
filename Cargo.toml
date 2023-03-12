@@ -9,6 +9,7 @@ edition = "2021"
 rand = "0.8.5"
 lazy_static = "1.4.0"
 compact_str = "0.7.0"
+rustc-hash = "1.1"
 
 [dev-dependencies]
 criterion = "0.4"

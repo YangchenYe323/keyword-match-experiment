@@ -10,7 +10,7 @@ pub mod utils;
 use std::simd::{Simd, SimdPartialEq, ToBitMask};
 
 pub use keyword_list::{MAX_JS_KEYWORD_LENGTH, MIN_JS_KEYWORD_LENGTH};
-pub use keyword_match::{match_keyword_perfect_hash, match_keyword_baseline, match_keyword_rust_hash, match_keyword_rust_custom_hash};
+pub use keyword_match::{match_keyword_perfect_hash, match_keyword_baseline, match_keyword_rust_hash, match_keyword_rust_hash_fx, match_keyword_rust_custom_hash};
 
 pub const ELEMENTS: usize = 16;
 
